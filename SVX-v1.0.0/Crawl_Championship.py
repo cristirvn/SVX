@@ -292,7 +292,7 @@ file_to_upload =f"{country}-{division}-{season}.csv"
 matches : List[Match] = []
 if not os.path.exists(file_to_upload):
     matches = crawl_championship(link, file_to_upload)
-'''
+
 cur = None
 conn = None
 try:
@@ -331,7 +331,7 @@ finally:
     if cur is not None and conn is not None:
         cur.close()
         conn.close()
-        '''
+        
 upload_to_google_drive(file_to_upload)
 
 
