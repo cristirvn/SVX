@@ -1,0 +1,9 @@
+*.csv
+*.txt
+.venv/
+__pycache__/
+**/*.csv
+nou_venv/
+**/*.txt
+Folder nou/
+win_lose_project/
