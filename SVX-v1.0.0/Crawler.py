@@ -8,6 +8,10 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 import time
 
+from sqlalchemy import create_engine, Column, String, Integer, CHAR, TIMESTAMP, func
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import sessionmaker
+
 class ChampionshipLinks:
     def __init__(self, sport_name, country, division):
         self.sport_name = sport_name
@@ -50,6 +54,7 @@ def retrieve_country_links(driver, list_of_links, sport):
         list_of_links.append(ChampionshipLinks(sport, country, division))
 
 
+print(ChromeDriverManager().install())
 sport = input("Enter the sport: ")
 sport_url = f"https://www.flashscore.com/{sport}/"
 list_of_links : List[ChampionshipLinks] = []
@@ -58,15 +63,40 @@ chrome_options.add_argument("--headless")
 driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=chrome_options)
 driver.get(sport_url)
 
-#start = time.time()
 retrieve_country_links(driver, list_of_links, sport)
-
-#end = time.time()
-# print(end-start)
-# raise type
-for ch in list_of_links:
-    official_link = ch.get_link_prefix()
-    print(official_link)
 driver.quit()
 
+#created a table in database using sqlalchemy to store the championship links
+Base = declarative_base()
 
+class Link(Base):
+    __tablename__ = "championship_links"
+
+    id = Column("id", Integer, primary_key=True, autoincrement=True)
+    url = Column("url", String)
+    sport = Column("sport", String)  
+    country = Column("country", String)
+    league = Column("league", String)
+    Created_at = Column(TIMESTAMP, server_default=func.now())  # Automatically set timestamp
+
+    def __init__(self, url, sport, country, league):
+        self.url = url
+        self.sport = sport
+        self.country = country
+        self.league = league
+
+
+engine = create_engine("postgresql+psycopg2://postgres:cuchiegras@localhost:5432/championship_links", echo = True)
+Base.metadata.create_all(bind = engine)
+
+Session = sessionmaker(bind = engine)
+session = Session()
+
+#adding the championships links in the data base
+for ch in list_of_links:
+    official_link = ch.get_link_prefix()
+    element = Link(official_link, sport, ch.country, ch.division)
+    session.add(element)
+
+session.commit()
+session.close()
