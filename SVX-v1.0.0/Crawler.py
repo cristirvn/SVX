@@ -56,7 +56,6 @@ def retrieve_country_links(driver, list_of_links, sport):
         list_of_links.append(ChampionshipLinks(sport, country, division))
 
 
-print(ChromeDriverManager().install())
 sport = input("Enter the sport: ")
 sport_url = f"https://www.flashscore.com/{sport}/"
 list_of_links : List[ChampionshipLinks] = []
