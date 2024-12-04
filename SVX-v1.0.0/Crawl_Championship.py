@@ -57,11 +57,15 @@ def get_urls(driver):
 
 def crawl_championship(championship_url: str, file_to_upload) -> List[Match]:
     Champ_list : List[Match] = []
-    chrome_options = Options()
-    chrome_options.add_argument("--headless")
-    driver = webdriver.Chrome(service= Service(ChromeDriverManager().install()), options=chrome_options)
+    # chrome_options = Options()
+    # chrome_options.add_argument("--headless")
+    # driver = webdriver.Chrome(service= Service(ChromeDriverManager().install()), options=chrome_options)
+    path = r"C:\Users\User\Desktop\workspace2\chromedriver-win64\chromedriver.exe"
+    service = Service(path)
+    driver = webdriver.Chrome(service=service)
     driver.get(championship_url)
     wait = WebDriverWait(driver, 3)
+    
     temp_years = season.split('-')
     while True:
         try:
