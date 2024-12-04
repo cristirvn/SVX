@@ -7,10 +7,12 @@ from typing import List
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 import time
+import pandas as pd
 
 from sqlalchemy import create_engine, Column, String, Integer, CHAR, TIMESTAMP, func
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
+
 
 class ChampionshipLinks:
     def __init__(self, sport_name, country, division):
@@ -58,9 +60,14 @@ print(ChromeDriverManager().install())
 sport = input("Enter the sport: ")
 sport_url = f"https://www.flashscore.com/{sport}/"
 list_of_links : List[ChampionshipLinks] = []
-chrome_options = Options()
-chrome_options.add_argument("--headless")
-driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=chrome_options)
+# chrome_options = Options()
+# chrome_options.add_argument("--headless")
+# driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=chrome_options)
+
+path = r"C:\Users\User\Desktop\workspace2\chromedriver-win64\chromedriver.exe"
+service = Service(path)
+driver = webdriver.Chrome(service=service)
+
 driver.get(sport_url)
 
 retrieve_country_links(driver, list_of_links, sport)
