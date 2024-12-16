@@ -1,8 +1,6 @@
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.service import Service
-from selenium.webdriver.chrome.options import Options
-from webdriver_manager.chrome import ChromeDriverManager
 from typing import List
 from dataclasses import dataclass
 from selenium.webdriver.support.ui import WebDriverWait
@@ -10,14 +8,10 @@ import time
 from selenium.webdriver.support import expected_conditions as EC
 import psycopg2
 import os.path
-from google.auth.transport.requests import Request
-from google.oauth2.credentials import Credentials
-from google_auth_oauthlib.flow import InstalledAppFlow
-from googleapiclient.errors import HttpError
-from googleapiclient.http import MediaFileUpload
-from googleapiclient.discovery import build
+import configparser
 import os
 import csv 
+from Drive_backup import upload_to_google_drive, upload_to_gdrive_by_key
 
 @dataclass
 class Match:
@@ -57,11 +51,15 @@ def get_urls(driver):
 
 def crawl_championship(championship_url: str, file_to_upload) -> List[Match]:
     Champ_list : List[Match] = []
-    chrome_options = Options()
-    chrome_options.add_argument("--headless")
-    driver = webdriver.Chrome(service= Service(ChromeDriverManager().install()), options=chrome_options)
+    # chrome_options = Options()
+    # chrome_options.add_argument("--headless")
+    # driver = webdriver.Chrome(service= Service(ChromeDriverManager().install()), options=chrome_options)
+    path = r"C:\Users\User\Desktop\workspace2\chromedriver-win64\chromedriver.exe"
+    service = Service(path)
+    driver = webdriver.Chrome(service=service)
     driver.get(championship_url)
     wait = WebDriverWait(driver, 3)
+    
     temp_years = season.split('-')
     while True:
         try:
@@ -235,53 +233,6 @@ def insert_match(cur, match: Match):
     ))
 
 
-def upload_to_google_drive(file_name):
-    SCOPES = ["https://www.googleapis.com/auth/drive"]
-    creds = None
-    if os.path.exists("token.json"):
-        creds = Credentials.from_authorized_user_file("token.json", SCOPES)
-
-    if not creds or not creds.valid:
-        if creds and creds.expired and creds.refresh_token:
-            creds.refresh(Request())
-        else:
-            flow = InstalledAppFlow.from_client_secrets_file(
-                "C:/Users/User/Desktop/workspace/SVX-v1.0.0/credentials.json", SCOPES
-            )
-            creds = flow.run_local_server(port= 0)
-        with open('token.json', 'w') as token:
-            token.write(creds.to_json())
-    try:
-        service = build("drive", "v3", credentials = creds)
-        response = service.files().list(
-            q="name='BackupFolder' and mimeType='application/vnd.google-apps.folder'",
-            spaces = 'drive'
-        ).execute()
-
-        if not response['files']:
-            file_metadata = {
-                "name" : "BackupFolder",
-                "mimeType" : "application/vnd.google-apps.folder"
-            }
-            file = service.files().create(body = file_metadata, fields = "id").execute()
-            folder_id = file.get('id')
-        else:
-            folder_id = response['files'][0]['id']
-
-        for file in os.listdir('backupfiles'):
-            file_metadata = {
-                "name" : file_name,
-                "parents" : [folder_id]
-            }
-            media = MediaFileUpload(f"backupfiles/{file_name}")
-            upload_file = service.files().create(body=file_metadata, media_body= media, fields="id").execute()
-    except HttpError as e:
-        print("Error: " + str(e))
-    
-
-
-
-
 sport = input("Enter sport: ")
 country = input("Enter country: ")
 division = input("Enter division: ")
@@ -290,14 +241,22 @@ season = input("enter the season with '-'(e.g: 2006-2007): ")
 link = f"https://www.flashscore.com/{sport}/{country}/{division}-{season}/results/"
 file_to_upload =f"{country}-{division}-{season}.csv"
 matches : List[Match] = []
+
 if not os.path.exists(file_to_upload):
     matches = crawl_championship(link, file_to_upload)
 
+config = configparser.ConfigParser()
+config.read("config.ini")
+db_host = config["database"]["host"]
+db_name = config["database"]["dbname"]
+db_user = config["database"]["user"]
+db_password = config["database"]["password"]
+db_port = config["database"]["port"]
 cur = None
 conn = None
 try:
-    conn = psycopg2.connect(host="localhost", dbname="postgres", user="postgres",
-                            password="cuchiegras", port=5432)
+    conn = psycopg2.connect(host=db_host, dbname=db_name, user=db_user,
+                            password=db_password, port=db_port)
     cur = conn.cursor()
     # SQL statement to create the 'matches' table
     create_table_query = """
@@ -332,6 +291,6 @@ finally:
         cur.close()
         conn.close()
         
-upload_to_google_drive(file_to_upload)
+upload_to_gdrive_by_key(file_to_upload)
 
 
