@@ -1,69 +1,25 @@
-from fastapi import FastAPI, HTTPException
-from pydantic import BaseModel
-import psycopg2
-from psycopg2.extras import RealDictCursor
-from configparser import ConfigParser
-import uvicorn
+from fastapi import FastAPI, Depends, HTTPException
+from sqlalchemy.orm import Session
+from models import League, Base
+from dbase import engine, SessionLocal
 
-# FastAPI app
 app = FastAPI()
 
-# Request model
-class LeagueInput(BaseModel):
-    country: str
-    sport: str
+# Create tables
+Base.metadata.create_all(bind=engine)
 
-# Database connection function
-def get_db_connection():
-    """
-    Establish a database connection using credentials from config.ini.
-    """
-    config = ConfigParser()
-    config.read("config.ini")
-    db_host = config["database"]["host"]
-    db_name = config["database"]["dbname"]
-    db_user = config["database"]["user"]
-    db_password = config["database"]["password"]
-    db_port = config["database"]["port"]
-    cur = None
-    conn = None
+# Dependency for getting the database session
+def get_db():
+    db = SessionLocal()
     try:
-        conn = psycopg2.connect(host=db_host, dbname=db_name, user=db_user,
-                                password=db_password, port=db_port)
-        
-        return conn
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Database connection error: {str(e)}")
-
-# API endpoint to fetch leagues
-@app.post("/get_leagues/")
-async def get_leagues(data: LeagueInput):
-    """
-    Fetch all leagues for a given country and sport.
-    """
-    conn = get_db_connection()
-    cursor = conn.cursor(cursor_factory=RealDictCursor)
-    try:
-        query = """
-        SELECT league
-        FROM championship_links
-        WHERE country = %s AND sport = %s
-        """
-        cursor.execute(query, (data.country, data.sport))
-        leagues = cursor.fetchall()
-        if not leagues:
-            raise HTTPException(status_code=404, detail="No leagues found")
-        else:
-            leagues_list = []
-            for row in leagues:
-                leagues_list.append(row["league"])
-
-            return {"leagues": leagues_list}
-
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Error fetching leagues: {str(e)}")
+        yield db
     finally:
-        cursor.close()
-        conn.close()
+        db.close()
 
+@app.get("/leagues/")
+def get_leagues(sport: str, country: str, db: Session = Depends(get_db)):
+    leagues = db.query(League.league).filter(League.sport == sport, League.country == country).all()
+    if not leagues:
+        raise HTTPException(status_code=404, detail="No leagues found for the given sport and country")
+    return [league[0] for league in leagues]
 
