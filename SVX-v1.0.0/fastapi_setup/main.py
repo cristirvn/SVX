@@ -2,8 +2,17 @@ from fastapi import FastAPI, Depends, HTTPException
 from sqlalchemy.orm import Session
 from models import League, Base
 from dbase import engine, SessionLocal
-
+from fastapi.middleware.cors import CORSMiddleware
 app = FastAPI()
+
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:3000"],  # React app URL
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 # Create tables
 Base.metadata.create_all(bind=engine)
