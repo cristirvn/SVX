@@ -17,8 +17,8 @@ You can [download](https://github.com/cristirvn/SVX/archive/refs/heads/uv-migrat
 - frontend directory contains folowing:
     -fastapi_setup directory: [fastapi](https://fastapi.tiangolo.com/#installation) initialization for react application
     -sports-app directory: [react](https://react.dev/learn) application setup
--pyproject.toml: contain dependencies versions, project beeing managed with [uv](https://docs.astral.sh/uv/)
--uv.lock: uv generated lockfile
+- pyproject.toml: contain dependencies versions, project beeing managed with [uv](https://docs.astral.sh/uv/)
+- uv.lock: uv generated lockfile
 
 ## How to run the project
 1.Download the project as mentioned earlier
@@ -45,6 +45,7 @@ uvicorn main:app --reload
 ```bash
 npm start
 ```
+
 
 
 
