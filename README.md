@@ -1,1 +1,1 @@
-<img width="700" height="350" alt="SportVisionX" src="https://github.com/user-attachments/assets/4328f997-fe06-4013-a300-0a688050b1ec" />
+<img width="790" height="150" alt="SportVisionX__2_-removebg-preview" src="https://github.com/user-attachments/assets/06fa393c-cca7-4904-a757-22b0ede11be4" />
