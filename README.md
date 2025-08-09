@@ -1,5 +1,4 @@
-<img width="790" height="150" alt="SportVisionX__2_-removebg-preview" src="https://github.com/user-attachments/assets/06fa393c-cca7-4904-a757-22b0ede11be4" />
-
+# SportVisionX v0.1.0 documentation
 ## Basic overview
 Advanced sports match crawler and analytics platform designed to track and analyze championships and match results, providing comprehensive statistics about past events.
 
@@ -9,7 +8,7 @@ You can [download](https://github.com/cristirvn/SVX/archive/refs/heads/uv-migrat
 ## Project description
 - backend directory contains following:
   -  tests directory : testing the crawler and crawl_championship functions functionality
-  -  Analyze.py and Analyzer.py: deep analizing of certain matches (avaiable soon)
+  -  Analyze.py and Analyzer.py: deep analizing of certain matches 
   - Crawler.py : retrieving all the championship links for a certain sport using [selenium](https://www.selenium.dev/documentation/) for crawling the data and store them in a database using [sqlalchemy](https://www.sqlalchemy.org/)
   - Crawl_championship: crawling all the matches for a specific championship
   - config.ini: contains the database credentials in order to store the matches data
@@ -49,9 +48,12 @@ npm start
 ```
 8.Fetch the leagues in the react interface by inputing the sport and the country
 
-## Version
-v0.1.0
-Future updates incoming with more functionalities
+## Known issues
+- Analyze.py and Analyzer.py are not ready for use yet
+- Crawler.py works only for basketball for now
+- React application only outputs the leagues for a specific country, not an analyze for a specific championship, will be fixed in next versions
+- Drive_backup.py is outdated and needs to be improved
+
 
 
 
