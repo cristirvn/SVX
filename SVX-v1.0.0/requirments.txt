@@ -1,0 +1,16 @@
+selenium  
+webdriver-manager  
+sqlalchemy  
+psycopg2  
+pytest  
+google-api-python-client  
+google-auth  
+google-auth-oauthlib
+pydantic
+fastapi
+uvicorn
+fastapi[all]
+
+!!FOR REACT APPLICATION YOU NEED TO INSTALL:
+npm install react
+npm install axios
