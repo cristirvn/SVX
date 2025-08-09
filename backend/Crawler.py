@@ -101,7 +101,7 @@ if __name__ == "main":
 
     engine = create_engine(database_url, echo = True)
     Base.metadata.create_all(bind = engine)
-
+    
     Session = sessionmaker(bind = engine)
     session = Session()
 
